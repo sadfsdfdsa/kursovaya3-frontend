@@ -91,9 +91,9 @@ const i18n = useI18n();
 
 const onForgotPassword = () => showUnderDevelopmentNotification();
 
-const onSubmit = () => {
+const onSubmit = async () => {
   try {
-    actions.loginByLoginAndPass(email.value, password.value);
+    await actions.loginByLoginAndPass(email.value, password.value);
   } catch (e) {
     $q.notify({
       color: 'red-5',

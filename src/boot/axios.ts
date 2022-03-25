@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { boot } from 'quasar/wrappers';
 import axios, { AxiosInstance } from 'axios';
 import { actions, getters } from 'src/store/modules/auth';
@@ -18,11 +17,11 @@ declare module '@vue/runtime-core' {
 // for each client)
 const baseURL: string = process.env.DEV
   ? 'http://localhost:3000'
-  : 'https://api.example.com';
+  : 'https://api.example.com'; // TODO
 
 const api = axios.create({ baseURL });
 
-axios.interceptors.request.use(
+api.interceptors.request.use(
   (config) => {
     const token = getters.accessToken.value;
     if (token) {
@@ -36,39 +35,13 @@ axios.interceptors.request.use(
 );
 
 // Response interceptor for API calls
-axios.interceptors.response.use(
+api.interceptors.response.use(
   (response) => {
     return response;
   },
   function (error) {
-    const originalRequest = error.config;
-    if (error.response.status === 401 && !originalRequest._retry) {
-      originalRequest._retry = true;
-      return axios
-        .post('/auth/token', {
-          refresh_token: getters.refreshToken.value,
-        })
-        .then((res) => {
-          if (res.status === 201) {
-            // 1) put token to LocalStorage
-            actions.setTokens(
-              res.data as {
-                access_token: string;
-                refresh_token: string;
-              }
-            );
-
-            // 2) Change Authorization header
-            if (getters.accessToken.value) {
-              axios.defaults.headers.common[
-                'Authorization'
-              ] = `Bearer ${getters.accessToken.value}`;
-            }
-
-            // 3) return originalRequest object with Axios.
-            return axios(originalRequest);
-          }
-        });
+    if (error.response.status === 401) {
+      actions.logout();
     }
   }
 );

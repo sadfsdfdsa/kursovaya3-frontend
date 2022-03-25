@@ -17,33 +17,33 @@ export type State = {
 const dashboardsMock: State['drawerItems'] = [
   {
     id: nanoid(),
-    name: 'Alert board',
+    name: 'ALERTS мониторинг',
   },
   {
     id: createIdForGroup(),
-    name: 'Main group',
+    name: 'Основной мониторинг',
     dashboards: [
       {
         id: nanoid(),
-        name: 'Dashboard with info',
+        name: 'Потрачено электроэнергии',
       },
       {
         id: nanoid(),
-        name: 'Test board',
+        name: 'Тестовый борд',
       },
     ],
   },
   {
     id: createIdForGroup(),
-    name: 'Temp group',
+    name: 'Энергия Компания#1',
     dashboards: [
       {
         id: nanoid(),
-        name: 'Temperatura',
+        name: 'Потрачено',
       },
       {
         id: nanoid(),
-        name: 'Rasstoanie',
+        name: 'Получено',
       },
     ],
   },

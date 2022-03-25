@@ -22,10 +22,10 @@ onMounted(() => {
   const myChart = new Chart(ctx, {
     type: 'bar',
     data: {
-      labels: ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange'],
+      labels: ['ПН', 'ВТ', 'СР', 'ЧТ', 'ПТ', 'СБ'],
       datasets: [
         {
-          label: '# of Votes',
+          label: 'Электроэнергия потрачена',
           data: [12, 19, 3, 5, 2, 3],
           backgroundColor: [
             'rgba(255, 99, 132, 0.2)',
@@ -60,7 +60,7 @@ onMounted(() => {
       responsive: false,
       plugins: {
         title: {
-          display: true,
+          display: false,
           text: 'Bar Chart',
         },
       },

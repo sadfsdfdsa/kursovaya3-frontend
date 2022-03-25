@@ -6,32 +6,21 @@ import {
 import { Router } from 'src/router';
 import { Notify } from 'quasar';
 import { i18n } from 'src/i18n/instance';
-import { nanoid } from 'nanoid';
+import { api } from 'src/boot/axios';
 
 type State = {
   accessToken: string | null;
-  refreshToken: string | null;
   isAuthorized: boolean;
   isAdmin: boolean;
 };
 
 const createState = (): State => ({
   accessToken: null,
-  refreshToken: null,
   isAuthorized: false,
   isAdmin: false,
 });
 
-const mockUserInfo = {
-  firstName: 'Artem',
-  secondName: 'Shuvaev',
-  phone: '682934329',
-  email: 'sh@mail.ru',
-  isAdmin: true,
-};
-
 const accessTokenLocalStorageKey = 'access_token';
-const refreshTokenLocalStorageKey = 'refresh_token';
 
 const state = reactive<State>(createState());
 
@@ -41,7 +30,6 @@ const mutations = {
 
     if (!value) {
       mutations.setAccessToken(null);
-      mutations.setRefreshToken(null);
       state.isAdmin = false;
     }
   },
@@ -56,56 +44,60 @@ const mutations = {
       localStorage.setItem(accessTokenLocalStorageKey, value);
       return;
     }
-    console.warn('ASD 2', value);
+
     localStorage.removeItem(accessTokenLocalStorageKey);
-  },
-  setRefreshToken: (value: State['refreshToken'], stateOnly = false): void => {
-    state.refreshToken = value;
-    if (stateOnly) return;
-
-    if (value) {
-      localStorage.setItem(refreshTokenLocalStorageKey, value);
-      return;
-    }
-    console.warn('ASD 2.2', value);
-
-    localStorage.removeItem(refreshTokenLocalStorageKey);
   },
 };
 
 export const actions = {
-  loginByToken: (): void => {
-    // TODO get userInfo from backend
+  loginByToken: async (): Promise<void> => {
     if (!state.accessToken) throw Error('Auth error, need login');
-    mutations.setAuthorized(true);
-    mutations.setAdmin(true);
-    userActions.fillState(mockUserInfo);
+
+    try {
+      const res = await api.get('/profile');
+      console.warn('ASD 1 login by token', res);
+
+      mutations.setAuthorized(true);
+      mutations.setAdmin(true);
+      userActions.fillState(res.data);
+    } catch (e) {
+      throw Error('Auth error, need login');
+    }
   },
-  loginByLoginAndPass: (login: string, password: string): void => {
-    if (login !== 'asd@asd.com' || password !== 'asd')
-      throw Error('Invalid creditinals');
+  loginByLoginAndPass: async (
+    login: string,
+    password: string
+  ): Promise<void> => {
+    try {
+      const res = await api.post('/auth/login', {
+        username: login,
+        password,
+      });
 
-    mutations.setAuthorized(true);
-    mutations.setAdmin(true);
-    userActions.fillState(mockUserInfo);
+      mutations.setAuthorized(true);
+      userActions.fillState(res.data);
 
-    // TODO remove
-    const accessToken = nanoid();
-    const refreshToken = nanoid();
-    actions.setTokens({
-      access_token: accessToken,
-      refresh_token: refreshToken,
-    });
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+      const accessToken = res.data.access_token as string;
+      actions.setTokens({
+        access_token: accessToken,
+      });
 
-    Notify.create({
-      color: 'green-5',
-      textColor: 'white',
-      icon: 'done',
-      message: `${i18n.global.t('welcome')} ${userGetters.username.value}!`,
-      position: 'bottom-right',
-    });
+      Notify.create({
+        color: 'green-5',
+        textColor: 'white',
+        icon: 'done',
+        message: `${i18n.global.t('welcome')} ${userGetters.username.value}!`,
+        position: 'bottom-right',
+      });
 
-    Router.push({ name: 'Main' }).catch(console.error);
+      await actions.loginByToken();
+
+      Router.push({ name: 'Main' }).catch(console.error);
+    } catch (e) {
+      throw Error('Auth error, invalid creds');
+    }
   },
   logout: (): void => {
     mutations.setAuthorized(false);
@@ -113,19 +105,13 @@ export const actions = {
 
     Router.push({ name: 'Login' }).catch(console.error);
   },
-  setTokens: (payload: {
-    access_token: State['accessToken'];
-    refresh_token: State['refreshToken'];
-  }): void => {
+  setTokens: (payload: { access_token: State['accessToken'] }): void => {
     mutations.setAccessToken(payload.access_token);
-    mutations.setRefreshToken(payload.refresh_token);
   },
-  loadTokens: (): void => {
+  loadToken: (): void => {
     const accessToken = localStorage.getItem(accessTokenLocalStorageKey);
-    const refreshToken = localStorage.getItem(refreshTokenLocalStorageKey);
 
     mutations.setAccessToken(accessToken, true);
-    mutations.setRefreshToken(refreshToken, true);
   },
 };
 
@@ -133,5 +119,4 @@ export const getters = {
   isAdmin: computed(() => readonly(state).isAdmin),
   isAuthorized: computed(() => readonly(state).isAuthorized),
   accessToken: computed(() => readonly(state).accessToken),
-  refreshToken: computed(() => readonly(state).refreshToken),
 };

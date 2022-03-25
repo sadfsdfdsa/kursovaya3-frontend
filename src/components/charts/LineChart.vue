@@ -25,15 +25,15 @@ onMounted(() => {
       labels: [12, 19, 3, 5, 2, 3].map((_, i) => i),
       datasets: [
         {
-          label: 'Blue',
+          label: 'Получено энергии',
           data: [12, 19, 3, 5, 2, 3],
           borderWidth: 1,
           borderColor: 'rgba(54, 162, 235, 1)',
           backgroundColor: 'rgba(54, 162, 235, 0.2)',
         },
         {
-          label: 'Red',
-          data: [12, 19, 3, 5, 2, 3].reverse(),
+          label: 'Потрачено энергии',
+          data: [12, 19, 13, 20, 7, 17].reverse(),
           borderWidth: 1,
           borderColor: 'rgba(255, 99, 132, 1)',
           backgroundColor: 'rgba(255, 99, 132, 0.2)',
@@ -56,7 +56,7 @@ onMounted(() => {
           position: 'top',
         },
         title: {
-          display: true,
+          display: false,
           text: 'Line Chart',
         },
       },

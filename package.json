@@ -2,7 +2,7 @@
   "name": "frontend",
   "version": "0.0.1",
   "description": "Frontend app",
-  "productName": "Frontend app",
+  "productName": "HSE | LAB",
   "author": "Artem Shuvaev <shuvaevlol@gmail.com>",
   "private": true,
   "scripts": {
