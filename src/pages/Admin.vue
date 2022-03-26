@@ -98,7 +98,12 @@
                   counter
                 /> </q-popup-edit
             ></q-td>
-            <q-td><q-btn label="X" color="negative" /></q-td>
+            <q-td
+              ><q-btn
+                label="X"
+                color="negative"
+                @click="onRemove(props.row.login)"
+            /></q-td>
           </q-tr>
         </template>
       </q-table>
@@ -184,7 +189,14 @@ const $q = useQuasar();
 
 const onSubmit = () => {
   try {
-    actions.createUser({
+    // actions.createUser({
+    //   login: login.value,
+    //   password: password.value,
+    //   firstName: firstName.value,
+    //   secondName: secondName.value,
+    //   patronymic: patronymic.value,
+    // });
+    rows.value.push({
       login: login.value,
       password: password.value,
       firstName: firstName.value,
@@ -200,5 +212,9 @@ const onSubmit = () => {
       position: 'bottom-right',
     });
   }
+};
+
+const onRemove = (login: User['login']) => {
+  rows.value = rows.value.filter((user) => user.login !== login);
 };
 </script>

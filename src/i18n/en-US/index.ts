@@ -18,5 +18,6 @@ export default {
   addShort: 'Add',
   editName: 'Edit name',
   delete: 'Delete',
-  addDashboardGroup: 'Add dashboard group'
+  addDashboardGroup: 'Add dashboard group',
+  check_request: 'See request'
 };

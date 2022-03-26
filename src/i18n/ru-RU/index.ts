@@ -19,4 +19,5 @@ export default {
   editName: 'Изменить',
   delete: 'Удалить',
   addDashboardGroup: 'Добавить группу',
+  check_request: 'Посмотреть запрос'
 };

@@ -1,5 +1,9 @@
 <template>
-  <canvas :id="id" width="400" height="400"></canvas>
+  <div class="chartWrapper">
+    <div class="chartAreaWrapper">
+      <canvas :id="id" height="400" width="7000"></canvas>
+    </div>
+  </div>
 </template>
 
 <script lang="ts" setup>
@@ -9,7 +13,7 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import { onMounted, watchEffect } from 'vue';
+import { onMounted, watchEffect, defineProps } from 'vue';
 import Chart from 'chart.js/auto';
 import { nanoid } from 'nanoid';
 import { getChartAxisColorsByTheme } from 'src/utils';
@@ -17,28 +21,29 @@ import { getters } from 'src/store/modules/settings';
 
 const id = nanoid();
 
+type Results = { result_id: string; time: string; value: number }[];
+const props = defineProps<{ results: Results }>();
+
 onMounted(() => {
   const ctx = (document.getElementById(id) as any).getContext('2d');
+
   const myChart = new Chart(ctx, {
     type: 'line',
     data: {
-      labels: [12, 19, 3, 5, 2, 3].map((_, i) => i),
+      labels: props.results.map((item) =>
+        new Date(item.time).toLocaleDateString('ru-RU', {
+          hour: '2-digit',
+          minute: '2-digit',
+          second: '2-digit',
+        })
+      ),
       datasets: [
         {
-          label: 'Получено энергии',
-          data: [12, 19, 3, 5, 2, 3],
+          label: 'Значение',
+          data: props.results.map((item) => item.value),
           borderWidth: 1,
           borderColor: 'rgba(54, 162, 235, 1)',
           backgroundColor: 'rgba(54, 162, 235, 0.2)',
-          stepped: true,
-          // fill: true,
-        },
-        {
-          label: 'Потрачено энергии',
-          data: [12, 19, 10, 20, 15, 17].reverse(),
-          borderWidth: 1,
-          borderColor: 'rgba(255, 99, 132, 1)',
-          backgroundColor: 'rgba(255, 99, 132, 0.2)',
           stepped: true,
           // fill: true,
         },
@@ -48,7 +53,7 @@ onMounted(() => {
       responsive: false,
       scales: {
         y: {
-          beginAtZero: true,
+          // beginAtZero: true,
           grid: getChartAxisColorsByTheme(getters.theme.value),
         },
         x: {
@@ -81,3 +86,21 @@ onMounted(() => {
   });
 });
 </script>
+
+<style scoped>
+.chartWrapper {
+  position: relative;
+}
+
+.chartWrapper > canvas {
+  position: absolute;
+  left: 0;
+  top: 0;
+  pointer-events: none;
+}
+
+.chartAreaWrapper {
+  width: 600px;
+  overflow-x: scroll;
+}
+</style>
